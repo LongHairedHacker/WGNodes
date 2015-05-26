@@ -37,10 +37,10 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
+Title "WS2801 Led Driver"
 Date "5 apr 2015"
-Rev ""
-Comp ""
+Rev "0.1"
+Comp "Sliderule Electronics"
 Comment1 ""
 Comment2 ""
 Comment3 ""
