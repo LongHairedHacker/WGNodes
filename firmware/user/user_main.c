@@ -7,20 +7,19 @@
 #include "spibang.h"
 #include "color.h"
 
-#define user_procTaskPrio 0
-#define user_procTaskQueueLen 1
-os_event_t user_procTaskQueue[user_procTaskQueueLen];
 
-int foo = 0;
+uint16_t foo = 0;
+uint8_t bar = 0;
 
-//Do nothing function
-void ICACHE_FLASH_ATTR user_procTask(os_event_t *events)
+os_timer_t led_timer;
+
+void ICACHE_FLASH_ATTR led_timer_task(void)
 {
 
 	struct color_hsv hsv;
 	struct color_rgb rgb;
 
-	hsv.h = foo / 10;
+	hsv.h = foo;
 	hsv.s = 255;
 	hsv.v = 255;
 
@@ -29,13 +28,14 @@ void ICACHE_FLASH_ATTR user_procTask(os_event_t *events)
 	spibang_send_byte(rgb.r);
 	spibang_send_byte(rgb.g);
 	spibang_send_byte(rgb.b);
-	os_delay_us(600);
 
-	foo++;
-	if(foo / 10 > 1536) {
+	bar = ~bar & 0x0F;
+
+
+	foo += 32;
+	if(foo > 1535) {
 		foo = 0;
 	}
-	system_os_post(user_procTaskPrio, 0, 0 );
 }
 
 //Init function 
@@ -46,6 +46,8 @@ void ICACHE_FLASH_ATTR user_init()
 
 	spibang_init();
 
-	system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
-	system_os_post(user_procTaskPrio, 0, 0 );
+	os_timer_disarm(&led_timer);
+	os_timer_setfn(&led_timer, (os_timer_func_t *)led_timer_task, (void *)0);
+	os_timer_arm(&led_timer, 100, 1);
+
 }
